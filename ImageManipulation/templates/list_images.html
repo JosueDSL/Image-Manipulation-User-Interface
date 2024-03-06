@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block title %}List Images{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+{% endwith %}
+
+    <h1>List Images</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Filename</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for image in images %}
+            <tr class="align-middle">
+                <td><img src="{{ url_for('views.download_image', filename=image) }}" alt="{{ image }}" style="width: 100px; height: 100px;"></td>
+                <td>{{ image }}</td>
+                <td>
+                    <a href="{{ url_for('views.download_image', filename=image) }}" class="btn btn-primary">Download</a>
+                    <form id="deleteForm{{ loop.index }}" action="{{ url_for('views.delete_image', filename=image) }}" method="POST" style="display: none;">
+                        <input type="hidden" name="filename" value="{{ image }}">
+                    </form>
+                    <button onclick="event.preventDefault(); document.getElementById('deleteForm{{ loop.index }}').submit();" class="btn btn-danger">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('views.upload_image') }}" class="btn btn-primary">Upload Image</a>
+    <a href="{{ url_for('views.modify_image_page') }}" class="btn btn-info">Process Image</a>
+    <a href="{{ url_for('views.home') }}" class="btn btn-success">Home</a>
+{% endblock %}
+```

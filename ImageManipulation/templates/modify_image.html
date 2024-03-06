@@ -1,0 +1,45 @@
+{% extends 'layout.html'%}
+{% block title %}Modify Image{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+{% endwith %}
+
+    <h1 class="my-2">Modify Image</h1>
+    <a href="{{ url_for('views.home') }}" class="btn btn-secondary my-4">Return Home</a>
+    {% for image in images %}
+    <form method="POST" action="{{ url_for('views.modify_image', filename=image) }}" enctype="multipart/form-data">
+        <div class="form-group"> 
+            <img src="{{ url_for('views.download_image', filename=image) }}" class="img-thumbnail" alt="{{ image }}">
+            <label style="color: purple;" class="d-block my-3 fs-4" for="{{ image }}">Image: "{{image}}"</label>
+            <h4>Image manipulation options:</h4>
+            <div class="form-group">
+                <label class="fs-3" for="rotate">Rotate</label>
+                <input type="number" name="rotate" placeholder="90°" class="form-control bg-light text-center" min="0" max="359">
+                <p style="color: blue;">Enter a degree value from 1 to 359</p>
+            </div>
+            <div class="form-group">
+                <label class="fs-3" for="resize">Resize</label>
+                <input type="number" name="width" placeholder="Width" class="my-3 form-control bg-light text-center" min="0" max="1920">
+                <input type="number" name="height" placeholder="Height" class="form-control bg-light text-center" min="0" max="1080">
+            </div>
+            <div class="form-group">
+                <label class="fs-3 my-3" for="contrast">Contrast</label>
+                <input type="number" name="contrast" placeholder="Enter a value (<1.0 to decrease, >1.0 to increase contrast)" class="form-control bg-light text-center" min="0" max="10" step="0.1">
+            </div>    
+            <input type="submit" class="btn btn-warning my-3">
+        </div>
+    </form>
+    {% endfor %}
+    <a href="{{ url_for('views.home') }}" class="btn btn-secondary my-4">Home</a>
+    <a href="{{ url_for('views.upload_image') }}" class="btn btn-primary">Upload Image</a>
+    <a href="{{ url_for('views.list_images_page') }}" class="btn btn-success">Manage your Images</a>
+    {% endblock %}
