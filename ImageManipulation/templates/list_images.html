@@ -36,6 +36,11 @@
                     <button onclick="event.preventDefault(); document.getElementById('deleteForm{{ loop.index }}').submit();" class="btn btn-danger">Delete</button>
                 </td>
             </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No images found, please upload some</td>
+                <a href="{{ url_for('views.upload_image') }}" class="btn btn-primary">Upload Image</a>
+            </tr>
             {% endfor %}
         </tbody>
     </table>

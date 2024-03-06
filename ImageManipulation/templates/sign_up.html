@@ -32,13 +32,13 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.password(size=32,placeholder="password*$%!@") }}<br>
+            {{ form.password(size=32, placeholder="password*$%!@", autocomplete="off") }}<br>
             {% for error in form.password.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
-            {{ form.password2(size=32,placeholder="password*$%!@") }}<br>
+            {{ form.password2(size=32,placeholder="Repeat password*$%!@", autocomplete="off") }}<br>
             {% for error in form.password2.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}

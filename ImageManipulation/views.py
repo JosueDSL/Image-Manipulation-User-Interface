@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app , render_template, request, redirect, url_for, jsonify, flash, send_file
+from flask import Blueprint, current_app , render_template, request, redirect, url_for, flash, send_file
 from flask_login import login_required
 from PIL import Image, ImageEnhance
 from werkzeug.utils import secure_filename
@@ -40,7 +40,8 @@ def upload_image():
         try:
             Image.open(file).verify()
         except Exception:
-            return jsonify(message='Invalid image file'), 400
+            flash('Invalid image file', category='danger')
+            return redirect(url_for('views.upload_image'))
         file.seek(0) # Reset the file pointer
 
         # If the uploads folder does not exist, create one
@@ -84,8 +85,9 @@ def list_images():
 
     # if there are no files, return error message
     if len(files) == 0:
-        return jsonify(message='No files found'), 404
-
+        flash('No files found', category='danger')
+        return redirect(url_for('views.list_images_page'))
+    
     # Filter the list of files to only include images
     image_files = []
     for file_name in files:
@@ -131,8 +133,8 @@ def download_image(filename):
     if os.path.exists(file_path):
         return send_file(absolute_file_path, as_attachment=True)
     else:
-        return jsonify(message=f'The image "{filename}" was not found'), 404
-
+        flash(f'The image "{filename}" was not found', category='danger')
+        return redirect(url_for('views.list_images_page'))
 
 @views.route("/modify-image-page", methods=["GET"])
 @login_required
@@ -141,6 +143,7 @@ def modify_image_page():
     images = list_images() 
     print(images)
     return render_template("modify_image.html", images=images)
+
 
 @views.route("/modify-image/<filename>", methods=["POST"])
 @login_required
@@ -170,11 +173,17 @@ def modify_image(filename):
         rotate = request.form.get('rotate')
         contrast = request.form.get('contrast')
 
+        # Ensure at least one manipulation was passed
+        if not any([width, height, rotate, contrast]):
+            flash('At least one manipulation is required', category='danger')
+            return redirect(url_for('views.modify_image_page'))
+
         # Ensure only numbers are passed in the request and convert them to int except for contrast
         variables = [('width', width), ('height', height), ('rotate', rotate), ('contrast', contrast)]
 
-        print(type(width), type(height), type(rotate), type(contrast))
-        print(width, height, rotate, contrast)
+        # print(type(width), type(height), type(rotate), type(contrast))
+        # print(width, height, rotate, contrast)
+
         for name, var in variables:
             if var is not None and var != '':
                 if not is_float(var):
@@ -194,8 +203,10 @@ def modify_image(filename):
                             height = var
                         elif name == 'rotate':
                             rotate = var   
+
         # Check for desired manipulations
         if width and height:
+            print('RESIZE got here!!!!')
             MAX_SIZE = (1920, 1080)
             # If width or height is greater than the max size return error message
             if width > MAX_SIZE[0] or height > MAX_SIZE[1]:
@@ -211,6 +222,7 @@ def modify_image(filename):
             return redirect(url_for('views.modify_image_page'))
 
         if rotate:
+            print('ROTATE got here!!!!')
             # if rotate greater than 360 or less than 0 return error message
             if rotate >= 360:
                 flash('Rotation must be between 0 and 359', category='danger')
@@ -220,6 +232,7 @@ def modify_image(filename):
             image = image.rotate(rotate)
 
         if contrast:
+            print('CONTRAST got here!!!!')
             # Convert image to RGB mode if it's not
             if image.mode != 'RGB':
                 image = image.convert('RGB')
